@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://android.com">
+
+    <!-- 1. Mandatory Camera Permission to capture the gesture frames -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    
+    <!-- 2. Prevents the phone from killing your background AI worker -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+
+    <!-- 3. Hardware requirement flags (tells Google Play what hardware to look for) -->
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Air Gestures"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+
+        <!-- Main UI Launcher Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- The Background Camera Processing Service -->
+        <service
+            android:name=".GestureService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="camera" />
+
+    </application>
+</manifest>
