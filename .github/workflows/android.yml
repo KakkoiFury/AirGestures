@@ -22,7 +22,7 @@ jobs:
 
     # 🔧 FIX 1: Auto-accept Android SDK Licenses so Gradle doesn't freeze waiting for interactive 'y/n' prompts
     - name: Accept Android SDK Licenses
-      run: |
+      run: 
         mkdir -p ${{ android_home }}/licenses
         yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
