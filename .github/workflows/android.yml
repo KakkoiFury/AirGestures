@@ -1,3 +1,4 @@
+# Android YAML again fixed.
 name: Android CI Build
 
 on:
@@ -7,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 15 # ⏱️ Automatically stops the build after 15 minutes so it doesn't waste your minutes
 
     steps:
     - name: Checkout Code
@@ -19,21 +20,33 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    # 🔧 FIX 1: Auto-accept Android SDK Licenses so Gradle doesn't freeze waiting for interactive 'y/n' prompts
+    - name: Accept Android SDK Licenses
+      run: |
+        mkdir -p ${{ android_home }}/licenses
+        yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
       with:
-        # This auto-caches dependencies so it won't freeze downloading files mid-build
-        cache-disabled: false 
+        cache-disabled: false
 
     - name: Grant Execute Permission to Gradlew
       run: chmod +x gradlew
 
-    # 🔧 OPTIMIZED BUILD STEP
+    # 🔧 FIX 2: Run a dry diagnostic test first to force initialization logs
+    - name: Run Gradle Diagnostics
+      run: ./gradlew help --no-daemon --console=plain
+
+    # 🔧 FIX 3: Optimized build execution step
     - name: Build Debug APK
+      env:
+        GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx2048m -Dorg.gradle.daemon=false"
       run: ./gradlew assembleDebug --no-daemon --stacktrace --info --console=plain
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
+
         path: app/build/outputs/apk/debug/app-debug.apk
